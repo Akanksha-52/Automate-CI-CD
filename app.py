@@ -13,7 +13,7 @@ def home():
             <title>AWS DevOps Project</title>
         </head>
         <body style="font-family: Arial; text-align: center; margin-top: 100px;">
-            <h1>AWS DevOps Automation Platform vnew automate</h1>
+            <h1>AWS DevOps Automation Platform version: new automate</h1>
             <h2>Hello from Flask!</h2>
             <p>Application Version: {APP_VERSION}</p>
             <p>Status: Running Successfully</p>
