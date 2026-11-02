@@ -3,22 +3,38 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
+
+        stage('Build') {
             steps {
-                checkout scm
+                echo 'Building Flask Application'
+                sh 'python3 -m compileall .'
             }
         }
 
-        stage('Deploy to App Server') {
+        stage('Test') {
             steps {
+                echo 'Testing Application'
+                sh 'python3 -m pytest'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker Image'
+                sh 'docker build -t flask-app:latest .'
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                echo 'Deploying Flask Application'
                 sh '''
-                    scp -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=accept-new app.py requirements.txt Dockerfile ubuntu@52.90.236.141:/home/ubuntu/
-                    ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=accept-new ubuntu@100.61.152.118 '
-                        cd /home/ubuntu &&
-                        docker build -t aws-app . &&
-                        docker rm -f aws-app-container || true
-                    '
-                    ssh -i ~/.ssh/id_ed25519 ubuntu@100.61.152.118 'docker run -d --restart unless-stopped -p 5000:5000 --name aws-app-container aws-app'
+                    docker rm -f flask-app || true
+                    docker run -d \
+                      --name flask-app \
+                      --restart unless-stopped \
+                      -p 5000:5000 \
+                      flask-app:latest
                 '''
             }
         }
