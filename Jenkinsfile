@@ -3,31 +3,34 @@ pipeline {
     agent any
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
 
         stage('Build') {
             steps {
-                echo 'Building Flask Application'
-                sh 'python3 -m compileall .'
+                echo 'Installing Python dependencies'
+                sh 'python3 -m pip install --user -r requirements.txt'
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Testing Application'
+                echo 'Running Flask tests'
                 sh 'python3 -m pytest'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                echo 'Building Docker Image'
                 sh 'docker build -t flask-app:latest .'
             }
         }
 
         stage('Run Container') {
             steps {
-                echo 'Deploying Flask Application'
                 sh '''
                     docker rm -f flask-app || true
                     docker run -d \
